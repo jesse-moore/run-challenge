@@ -1,5 +1,10 @@
 {
-	"private": true,
+	"name": "run-challange",
+	"version": "0.0.1",
+	"description": "",
+	"repository": "https://github.com/jesse-moore/run-challenge.git",
+	"author": "Jesse Moore",
+	"license": "MIT",
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
