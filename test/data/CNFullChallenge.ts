@@ -1,5 +1,5 @@
-import { ChallengeType, IntervalType, RequirementType, ScoringMetric } from '../dtos/ChallengeDto'
-import { ChallengeFormDto, ChallengeIntervalFormDto, IntervalRequirementFormDto } from '../dtos/ChallengeFormDto'
+import { ChallengeType, IntervalType, RequirementType, ScoringMetric } from '../../dtos/ChallengeDto'
+import { ChallengeFormDto, ChallengeIntervalFormDto, IntervalRequirementFormDto } from '../../dtos/ChallengeFormDto'
 
 const form = new ChallengeFormDto()
 

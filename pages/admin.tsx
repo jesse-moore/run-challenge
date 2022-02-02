@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { ChallengeForm } from '../components/forms/admin'
-import testChallenge from '../test/CNFullChallenge'
+import testChallenge from '../test/data/CNFullChallenge'
 
 const Admin = () => {
     useEffect(() => {}, [])

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { ChallengeType } from '../dtos/ChallengeDto'
 
 const ChallengeSchema = new mongoose.Schema({
     name: {
@@ -14,7 +15,11 @@ const ChallengeSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please provide a end date.'],
     },
+    type: {
+        type: String,
+        required: [true, 'Challege Type is required'],
+        enum: ChallengeType,
+    },
 })
 
-export default mongoose.models.Challenge ||
-    mongoose.model('Challenge', ChallengeSchema)
+export default mongoose.models.Challenge || mongoose.model('Challenge', ChallengeSchema)

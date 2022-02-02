@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { ActivityManualEntryForm } from '../components/forms/user'
-import testChallenge from '../test/CNFullChallenge'
+import testChallenge from '../test/data/CNFullChallenge'
 
 const ActivityEntry = () => {
     useEffect(() => {}, [])
