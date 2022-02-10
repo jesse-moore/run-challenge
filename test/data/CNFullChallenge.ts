@@ -1,5 +1,5 @@
-import { ChallengeType, IntervalType, RequirementType, ScoringMetric } from '../../dtos/ChallengeDto'
-import { ChallengeFormDto, ChallengeIntervalFormDto, IntervalRequirementFormDto } from '../../dtos/ChallengeFormDto'
+import { ChallengeType, IntervalType, RequirementType, ScoringMetric, Unit } from '../../src/dtos/ChallengeDto'
+import { ChallengeFormDto, ChallengeIntervalFormDto, IntervalRequirementFormDto } from '../../src/dtos/ChallengeFormDto'
 
 const form = new ChallengeFormDto()
 
@@ -8,6 +8,7 @@ form.start = '2022-03-01'
 form.end = '2022-03-14'
 form.type = ChallengeType.Interval
 form.intervalType = IntervalType.Daily
+form.units = Unit.Metric
 
 let distance = 0
 const intervals = [...Array(14)].map((_, i) => {

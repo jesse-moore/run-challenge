@@ -1,43 +1,57 @@
+import { AutoMap } from '@automapper/classes'
 import { Unit } from './ChallengeDto'
 
 export class ActivityDto {
+    @AutoMap()
     distance: number
-    elapsed_time: number
+    @AutoMap()
+    elapsedTime: number
+    @AutoMap()
     elevationGain: number
-    moving_time: number
+    @AutoMap()
+    movingTime: number
+    @AutoMap()
     date: string
-    local_date: string
+    @AutoMap()
+    localDate: string
+    @AutoMap()
     timezone: string
+    @AutoMap()
     offset: number
     constructor() {
         this.distance = 0
-        this.elapsed_time = 0
+        this.elapsedTime = 0
         this.elevationGain = 0
-        this.moving_time = 0
+        this.movingTime = 0
         this.date = ''
-        this.local_date = ''
+        this.localDate = ''
         this.timezone = ''
         this.offset = 0
     }
 }
 
-export class ActivityManualEntryDto {
+export class ActivityFormDto {
+    @AutoMap()
     units: Unit
+    @AutoMap()
     distance: number
-    duration: Duration
+    @AutoMap()
+    duration: number
+    @AutoMap()
     elevationGain: number
+    @AutoMap()
     date: string
+    @AutoMap()
     time: string
+    @AutoMap()
     timezone: string
-    offset: number
     constructor() {
         this.distance = 0
-        this.duration = { hours: 0, minutes: 0, seconds: 0 }
+        this.duration = 0
         this.elevationGain = 0
         this.time = ''
         this.date = ''
         this.timezone = ''
-        this.offset = 0
         this.units = Unit.Metric
     }
 }

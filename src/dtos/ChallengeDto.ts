@@ -1,22 +1,20 @@
 import { AutoMap } from '@automapper/classes'
 
 export class ChallengeDto {
-	@AutoMap()
+    @AutoMap()
     name: string
-	@AutoMap()
+    @AutoMap()
     start: string
-	@AutoMap()
+    @AutoMap()
     end: string
-	@AutoMap()
+    @AutoMap()
     type: ChallengeType
-	@AutoMap()
+    @AutoMap()
     intervalType: IntervalType
-	@AutoMap({ typeFn: () => ChallengeIntervalDto })
+    @AutoMap({ typeFn: () => ChallengeIntervalDto })
     intervals: ChallengeIntervalDto[]
-	@AutoMap()
+    @AutoMap()
     numberOfIntervals: number
-	@AutoMap()
-    units: Unit
     constructor() {
         this.name = ''
         this.end = ''
@@ -25,17 +23,16 @@ export class ChallengeDto {
         this.intervalType = IntervalType.Daily
         this.intervals = []
         this.numberOfIntervals = 0
-        this.units = Unit.Metric
     }
 }
 export class ChallengeIntervalDto {
-	@AutoMap()
+    @AutoMap()
     start: string
-	@AutoMap()
+    @AutoMap()
     end: string
-	@AutoMap()
+    @AutoMap()
     scoringMetric: ScoringMetric
-	@AutoMap()
+    @AutoMap()
     requirements: { [key in RequirementType]: number }
 }
 
@@ -51,6 +48,7 @@ export enum ChallengeType {
 }
 
 export enum IntervalType {
+    Single = 'single',
     Daily = 'daily',
     Weekly = 'weekly',
 }

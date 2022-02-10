@@ -40,7 +40,7 @@ export class ChallengeIntervalFormDto {
     constructor(interval: number) {
         this.interval = interval
         this.scoringMetric = ScoringMetric.Pace
-        this.requirements = [new IntervalRequirementFormDto()]
+        this.requirements = []
     }
 }
 

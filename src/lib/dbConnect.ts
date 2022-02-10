@@ -4,9 +4,7 @@ const MONGODB_URI = process.env.MONGODB_URI
 const MONGODB_DATABASE_NAME = process.env.MONGODB_DATABASE_NAME || 'local-YDfs3tG7h'
 
 if (!MONGODB_URI) {
-    throw new Error(
-        'Please define the MONGODB_URI environment variable inside .env.local'
-    )
+    throw new Error('Please define the MONGODB_URI environment variable inside .env.local')
 }
 
 /**
@@ -31,11 +29,9 @@ async function dbConnect() {
             dbName: MONGODB_DATABASE_NAME,
         }
 
-        cached.promise = mongoose
-            .connect(MONGODB_URI, opts)
-            .then((mongoose) => {
-                return mongoose
-            })
+        cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+            return mongoose
+        })
     }
     cached.conn = await cached.promise
     return cached.conn

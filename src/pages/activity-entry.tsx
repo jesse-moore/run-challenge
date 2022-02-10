@@ -1,19 +1,19 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
-import { ChallengeForm } from '../components/forms/admin'
-import testChallenge from '../test/data/CNFullChallenge'
+import { ActivityManualEntryForm } from '../components/forms/user'
+import testChallenge from '../../test/data/CNFullChallenge'
 
-const Admin = () => {
+const ActivityEntry = () => {
     useEffect(() => {}, [])
 
     return (
         <div>
             <h2>ADMIN</h2>
             <div className="mt-8 max-w-2xl mx-auto">
-                <ChallengeForm initialValues={testChallenge} />
+                <ActivityManualEntryForm/>
             </div>
         </div>
     )
 }
 
-export default Admin
+export default ActivityEntry
