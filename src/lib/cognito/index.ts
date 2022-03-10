@@ -18,6 +18,8 @@ const poolData: { UserPoolId: string; ClientId: string } = {
 
 const UserPool = new CognitoUserPool(poolData)
 
+let cognitoUser: CognitoUser
+
 const signup = ({
     email,
     password,
@@ -43,9 +45,16 @@ const signup = ({
     })
 }
 
-const login = ({ email, password }: { email: string; password: string }) => {
+export interface ILoginResult {
+    user?: CognitoUserSession
+    newPasswordRequired?: boolean
+    passwordResetRequired?: boolean
+    error?: string
+}
+
+const login = ({ email, password }: { email: string; password: string }): Promise<ILoginResult> => {
     return new Promise((resolve, reject) => {
-        const user = new CognitoUser({
+        cognitoUser = new CognitoUser({
             Username: email,
             Pool: UserPool,
         })
@@ -54,19 +63,73 @@ const login = ({ email, password }: { email: string; password: string }) => {
             Password: password,
         })
 
-        user.authenticateUser(authDetails, {
+        const result: ILoginResult = {}
+
+        cognitoUser.authenticateUser(authDetails, {
+            onSuccess: (data) => {
+                result.user = data
+                resolve(result)
+            },
+
+            onFailure: (err) => {
+                if (err.code === 'PasswordResetRequiredException') {
+                    result.passwordResetRequired = true
+                    resolve(result)
+                } else {
+                    result.error = err.message
+                    reject(result)
+                }
+            },
+
+            newPasswordRequired: (data) => {
+                result.user = data
+                result.newPasswordRequired = true
+                resolve(result)
+            },
+        })
+    })
+}
+
+const completePasswordReset = (code: string, newPassword: string) => {
+    return new Promise((resolve, reject) => {
+        cognitoUser.confirmPassword(code, newPassword, {
             onSuccess: (data) => {
                 resolve(data)
             },
 
             onFailure: (err) => {
-                console.log(err.message)
-                reject(err.message)
+                reject(err)
+            },
+        })
+    })
+}
+
+const forgotPassord = (email: string) => {
+    cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: UserPool,
+    })
+    return new Promise((resolve, reject) => {
+        cognitoUser.forgotPassword({
+            onSuccess: (data) => {
+                resolve(data)
             },
 
-            newPasswordRequired: (data) => {
-                //TODO new password form
-                console.log('newPasswordRequired:', data)
+            onFailure: (err) => {
+                reject(err)
+            },
+        })
+    })
+}
+
+const completeNewPasswordChallenge = (newPassword: string) => {
+    return new Promise((resolve, reject) => {
+        cognitoUser.completeNewPasswordChallenge(newPassword, null, {
+            onSuccess: (data) => {
+                resolve(data)
+            },
+            onFailure: (err) => {
+                reject(err)
             },
         })
     })
@@ -93,16 +156,20 @@ const getSession = async (user: CognitoUser): Promise<CognitoUserSession | null>
 const getUserData = async (user: CognitoUser): Promise<UserDataInterface | null> => {
     return new Promise((resolve, reject) => {
         if (user) {
-            getSession(user).then(() => {
+            getSession(user).then((session) => {
                 const username = user.getUsername()
-                console.log(username)
+                console.log(session)
                 user.getUserAttributes((err: Error | undefined, attributes: CognitoUserAttribute[] | undefined) => {
                     if (err) {
                         reject(err)
                     } else {
                         const results: UserDataInterface = {
+                            birthdate: '',
                             email: '',
                             email_verified: '',
+                            gender: '',
+                            groups: [],
+                            name: '',
                             sub: '',
                             username: '',
                         }
@@ -114,7 +181,8 @@ const getUserData = async (user: CognitoUser): Promise<UserDataInterface | null>
                                 })
                             }
                         }
-                        resolve({ ...results, username })
+                        const groups = session.getIdToken().payload['cognito:groups']
+                        resolve({ ...results, groups, username })
                     }
                 })
             })
@@ -145,4 +213,16 @@ const getJWT = async (): Promise<string | null> => {
     return null
 }
 
-export { UserPool, signup, login, getUser, getSession, logout, getJWT, getUserData }
+export {
+    UserPool,
+    signup,
+    login,
+    getUser,
+    getSession,
+    logout,
+    getJWT,
+    getUserData,
+    completeNewPasswordChallenge,
+    completePasswordReset,
+    forgotPassord,
+}

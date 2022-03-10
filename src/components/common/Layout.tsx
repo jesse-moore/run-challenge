@@ -1,14 +1,17 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Head from 'next/head'
-import { NavBar, NavItem, NavItems, NavLogo } from '../components/navbar'
+import { NavBar, NavItem, NavItems, NavLogo } from '../../components/navbar'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useAuth } from '../../lib/context/useAuth'
+import { Pulse } from './Spinner'
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
     const { route } = useRouter()
-    console.log(route)
+    const auth = useAuth()
+
     return (
-        <div>
+        <div className="relative">
             <Head>
                 <title>Blackjack</title>
                 <meta name="viewport" content="initial-scale=1.0, width=device-width" />
@@ -44,18 +47,40 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                     <NavLogo>Logo</NavLogo>
                 </Link>
                 <NavItems>
-                    <Link href="/admin" passHref>
-                        <NavItem active={route === '/admin'}>Admin</NavItem>
-                    </Link>
+                    {auth.user && auth.user.groups.includes('admin') && (
+                        <Link href="/admin" passHref>
+                            <NavItem active={route.startsWith('/admin')}>Admin</NavItem>
+                        </Link>
+                    )}
                     <Link href="/standings" passHref>
-                        <NavItem active={route === '/standings'}>Standings</NavItem>
+                        <NavItem active={route.startsWith('/standings')}>Standings</NavItem>
                     </Link>
-                    <Link href="/profile" passHref>
-                        <NavItem active={route === '/profile'}>Profile</NavItem>
-                    </Link>
+                    {auth.user ? (
+                        <>
+                            <Link href="/profile" passHref>
+                                <NavItem active={route.startsWith('/profile')}>Profile</NavItem>
+                            </Link>
+                            <Link href="/" passHref>
+                                <NavItem onClick={() => auth.signout()}>Log Out</NavItem>
+                            </Link>
+                        </>
+                    ) : (
+						<>
+                        <Link href="/login" passHref>
+                            <NavItem active={route.startsWith('/login')}>Login</NavItem>
+                        </Link>
+                        <Link href="/signup" passHref>
+                            <NavItem active={route.startsWith('/signup')}>Sign Up</NavItem>
+                        </Link>
+						</>
+                    )}
                 </NavItems>
             </NavBar>
-            <div className="w-full max-w-5xl mx-auto px-4">{children}</div>
+            <div className="w-full max-w-5xl mx-auto px-4">
+                {children}
+                <div className="h-[1000px]"></div>
+            </div>
+            <Pulse />
         </div>
     )
 }

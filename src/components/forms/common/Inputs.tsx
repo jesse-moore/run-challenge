@@ -1,36 +1,7 @@
 import React from 'react'
 import { Field, useField } from 'formik'
 
-interface ITextInput {
-    label: string
-    name: string
-    placeholder?: string
-}
-
-export const TextInput = ({ label, ...props }: ITextInput) => {
-    const [field, meta] = useField(props)
-    const baseClass =
-        'border-2 mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
-    const untouchedClass = `${baseClass} border-gray-300`
-    const validClass = `${baseClass} border-green-600 bg-green-100`
-    const errorClass = `${baseClass} border-red-600 bg-red-100`
-    return (
-        <div>
-            <label className="block">
-                <span className="text-gray-700">{label}</span>
-                <input
-                    className={meta.touched ? (meta.error ? errorClass : validClass) : untouchedClass}
-                    {...field}
-                    {...props}
-                    type="text"
-                />
-            </label>
-            {meta.touched && meta.error ? <div className="text-sm text-red-600 font-medium">{meta.error}</div> : null}
-        </div>
-    )
-}
-
-export const DateInput = ({ label, name }: ITextInput) => {
+export const DateInput = ({ label, name }) => {
     const [field, meta] = useField(name)
     const baseClass =
         'border-2 mt-1 block w-full rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50'
@@ -57,7 +28,7 @@ interface ICheckBoxInput {
     name: string
 }
 
-export const Checkbox = ({ label, ...props }: ICheckBoxInput) => {
+const Checkbox = ({ label, ...props }: ICheckBoxInput) => {
     const [field, meta] = useField({ ...props, type: 'checkbox' })
     return (
         <div>
@@ -76,7 +47,7 @@ interface IRadioGroup {
     radios: { label: string; value: string; disabled?: boolean }[]
 }
 
-export const RadioGroup = ({ label, radios, ...props }: IRadioGroup) => {
+const RadioGroup = ({ label, radios, ...props }: IRadioGroup) => {
     const [field, meta] = useField(props)
     const errorClass = `border-red-600`
     return (
@@ -110,7 +81,7 @@ export const CustomRadio = ({ label, radios, ...props }: IRadioGroup) => {
     const disabledClass = `${baseClass} border-gray-400 bg-gray-200 cursor-not-allowed hover:border-gray-400 hover:shadow-none`
     return (
         <div role="group">
-            <div className="text-gray-700 mb-2">{label}</div>
+            <div className="text-gray-700 mb-2 text-sm">{label}</div>
             <div className="flex gap-4">
                 {radios.map(({ label, ...childProps }) => {
                     const isSelected = field.value === childProps.value
@@ -143,3 +114,5 @@ export const CustomRadio = ({ label, radios, ...props }: IRadioGroup) => {
         </div>
     )
 }
+
+

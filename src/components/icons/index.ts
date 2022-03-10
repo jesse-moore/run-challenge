@@ -1,2 +1,4 @@
 import Delete from './delete'
-export { Delete }
+import Visibility from './visibility'
+import VisibilityOff from './visibilityOff'
+export { Delete, Visibility, VisibilityOff }

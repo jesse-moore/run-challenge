@@ -5,8 +5,12 @@ declare global {
     }
 }
 interface UserDataInterface {
-    email: string;
-    email_verified: string;
-    sub: string;
-    username: string;
+    birthdate: string
+    email: string
+    email_verified: string
+    gender: string
+    groups: string[]
+    name: string
+    sub: string
+    username: string
 }

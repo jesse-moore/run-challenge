@@ -1,7 +1,7 @@
 import React, { LegacyRef, MouseEventHandler, MutableRefObject, ReactElement, ReactNode, Ref } from 'react'
 
 export interface INavItem {
-    active: boolean
+    active?: boolean
     children: ReactNode
     href?: string
     onClick?: MouseEventHandler<HTMLAnchorElement>
@@ -13,8 +13,8 @@ export const NavItem = React.forwardRef<HTMLAnchorElement, INavItem>(
             <a {...props} ref={ref}>
                 <li
                     className={`${
-                        active && 'bg-slate-500'
-                    } px-5 py-4 flex gap-1 items-center text-sm font-medium text-white rounded-lg hover:bg-slate-500`}
+                        active ? 'text-[#5a67d8] bg-white shadow' : 'text-gray-700'
+                    } px-5 py-3 flex gap-1 items-center text-sm font-medium rounded-lg hover:text-[#5a67d8]`}
                 >
                     {children}
                 </li>

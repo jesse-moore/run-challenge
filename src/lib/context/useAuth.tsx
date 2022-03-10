@@ -3,10 +3,18 @@ import * as cognito from '../cognito'
 
 interface IAuthContext {
     user: UserDataInterface | null
-    signin: (email: string, password: string) => Promise<void | { error: string }>
+    signin: (email: string, password: string) => Promise<cognito.ILoginResult>
     signup: (email: string, password: string, username: string) => Promise<void | { error: string }>
     signout: () => void
+    completeNewPasswordChallenge: (password: string) => Promise<any>
+    completePasswordReset: (code: string, newPassword: string) => Promise<IAuthError | void>
+    forgotPassword: (email: string) => Promise<IAuthError | void>
     isLoaded: boolean
+}
+
+interface IAuthError {
+    name: string
+    message: string
 }
 
 const AuthContext = createContext<IAuthContext>(undefined)
@@ -25,7 +33,7 @@ export const useAuth = () => {
 }
 
 function useProvideAuth(children: React.ReactNode) {
-    const [user, setUser] = useState<UserDataInterface | null>(null)
+    const [user, setUser] = useState<UserDataInterface>(null)
     const [isLoaded, setIsLoaded] = useState(false)
 
     useEffect(() => {
@@ -34,23 +42,30 @@ function useProvideAuth(children: React.ReactNode) {
 
     useEffect(() => {
         const initUser = async () => {
-            const user = await cognito.getUser()
-            if (!user) {
-                signout()
-            } else {
-                setUser(user)
+            try {
+                const user = await cognito.getUser()
+                if (!user) {
+                    signout()
+                } else {
+                    console.log(user)
+                    setUser(user)
+                }
+            } catch (error) {
+                console.log(error)
             }
         }
-        initUser()
+        if (!user) initUser()
     }, [children])
 
     const signin = async (email: string, password: string) => {
         try {
-            await cognito.login({ email, password })
+            const result = await cognito.login({ email, password })
+            if (result.newPasswordRequired || result.passwordResetRequired) return result
             const user = await cognito.getUser()
             setUser(user)
+            return result
         } catch (error) {
-            return { error: 'Invalid username or password' }
+            return error
         }
     }
     const signup = async (email: string, password: string, username: string) => {
@@ -67,11 +82,40 @@ function useProvideAuth(children: React.ReactNode) {
         setUser(null)
     }
 
+    const completeNewPasswordChallenge = async (password: string) => {
+        try {
+            await cognito.completeNewPasswordChallenge(password)
+            const user = await cognito.getUser()
+            setUser(user)
+        } catch (error) {
+            return { error: 'Error signing up, try again later' }
+        }
+    }
+
+    const completePasswordReset = async (code: string, newPassword: string) => {
+        try {
+            const user = await cognito.completePasswordReset(code, newPassword)
+        } catch (error) {
+            return { name: error.name, message: error.message }
+        }
+    }
+
+    const forgotPassword = async (email: string) => {
+        try {
+            await cognito.forgotPassord(email)
+        } catch (error) {
+            return { name: error.name, message: error.message }
+        }
+    }
+
     return {
         user,
         isLoaded,
         signin,
         signup,
         signout,
+        completeNewPasswordChallenge,
+        completePasswordReset,
+        forgotPassword,
     }
 }
