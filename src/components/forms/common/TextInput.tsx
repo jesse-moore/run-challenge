@@ -15,29 +15,30 @@ export const TextInput = ({
     showError,
     type = 'text',
     indicateValidity = true,
+    name,
     ...props
 }: ITextInput) => {
     const [isFocused, setIsFocused] = useState(false)
-    const [field, meta, helper] = useField<string>(props.name)
-    const { name, value, onChange } = field
+    const [field, meta, helper] = useField<string>(name)
+    const { value, onChange } = field
     const { error, touched } = meta
 
     const handleBlur = () => {
         setIsFocused(false)
         if (!touched) helper.setTouched(true)
     }
-
     return (
         <InputWrapper>
             <Input
                 {...{
+					...props,
+                    ...field,
                     type,
                     touched: !indicateValidity ? false : touched,
                     error,
                     onChange,
                     onFocus: () => setIsFocused(true),
                     onBlur: handleBlur,
-					...props
                 }}
             />
             <FloatingLabel

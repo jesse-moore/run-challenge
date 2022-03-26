@@ -1,5 +1,5 @@
 import React from 'react'
-import PasswordResetForm from '../components/forms/user/PasswordReset'
+import PasswordResetForm from '../components/forms/user/PasswordResetForm'
 import { useAuth } from '../lib/context/useAuth'
 
 const Forgotpassword = () => {

@@ -1,10 +1,8 @@
 import { useField } from 'formik'
 import React, { useEffect, useState } from 'react'
-import { FloatingLabel, Input, InputError, InputIconRight, InputWrapper } from './parts'
-import { Visibility, VisibilityOff } from '../../icons'
 import { AnySchema } from 'yup/lib/schema'
 import { PasswordInput } from '.'
-import { PasswordRequirement, PasswordRequirements } from '../user/PasswordRequirements'
+import { PasswordRequirement, PasswordRequirements } from './PasswordRequirements'
 
 export interface IPasswordInputWithRequirements {
     label: string

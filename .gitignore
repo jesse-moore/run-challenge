@@ -35,3 +35,4 @@ yarn-error.log*
 
 .nyc_output
 .vscode
+gcloud_key.json

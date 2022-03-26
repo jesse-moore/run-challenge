@@ -1,34 +1,38 @@
-import { Form, Formik } from 'formik'
 import React from 'react'
-import { PasswordInput, TextInput } from '../common/'
+import { Form, Formik } from 'formik'
 import * as Yup from 'yup'
+import { PasswordInput, TextInput } from '../common'
 import { emailValdiationCode, password, passwordConfirmation } from '../validationSchemas'
 import { PasswordInputWithRequirements } from '../common/PasswordInputWithRequirements'
 
-export interface INewPasswordFormComponent {
-    onSubmit: (newPassword: string) => void
+interface IPasswordResetForm {
+    onSubmit: (code: string, password: string) => void
 }
 
-export interface INewPasswordForm {
+interface IPasswordResetFormValues {
+    code: string
     password: string
     passwordConfirmation: string
 }
 
-export default ({ onSubmit }: INewPasswordFormComponent) => {
+export default ({ onSubmit }: IPasswordResetForm) => {
     return (
-        <Formik<INewPasswordForm>
+        <Formik<IPasswordResetFormValues>
             initialValues={{
+                code: '',
                 password: '',
                 passwordConfirmation: '',
             }}
             validationSchema={Yup.object({
+                code: emailValdiationCode,
                 password: password,
                 passwordConfirmation: passwordConfirmation,
             })}
-            onSubmit={({ password }) => onSubmit(password)}
+            onSubmit={({ code, password }) => onSubmit(code.toString(), password)}
         >
             <Form>
                 <div className="flex w-full justify-center flex-col gap-y-4">
+                    <TextInput label="Verfication Code" name="code" type="number" min={100000} max={999999} />
                     <PasswordInputWithRequirements label="Password" name="password" validationSchema={password} />
                     <PasswordInput label="Confirm Password" name="passwordConfirmation" showError />
                     <button

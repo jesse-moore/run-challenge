@@ -11,10 +11,10 @@ interface ISelectInput {
     showError?: boolean
 }
 
-export const SelectInput = ({ label, options, showError, indicateValidity = true, ...props }: ISelectInput) => {
+export const SelectInput = ({ label, options, showError, indicateValidity = true, name, ...props }: ISelectInput) => {
     const [isFocused, setIsFocused] = useState(false)
-    const [field, meta, helper] = useField<number | string>(props)
-    const { name, value, onChange } = field
+    const [field, meta, helper] = useField<number | string>(name)
+    const { value, onChange } = field
     const { error, touched } = meta
 
     const handleBlur = () => {

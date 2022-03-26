@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext, ReactNode, useEffect } from 'react'
+import React, { useState, useContext, createContext, ReactNode } from 'react'
 
 interface ISpinnerContext {
     start: () => void

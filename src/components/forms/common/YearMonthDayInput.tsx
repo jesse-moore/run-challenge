@@ -27,7 +27,7 @@ export const YearMonthDayInput = ({ name, label, showError }: IYearMonthDayInput
 
     return (
         <div>
-            <div className='text-gray-600'>{label}</div>
+            <div className="text-gray-600">{label}</div>
             <div className="flex flex-row gap-x-4">
                 <TextInput
                     name={name ? `${name}.year` : 'year'}
@@ -35,6 +35,7 @@ export const YearMonthDayInput = ({ name, label, showError }: IYearMonthDayInput
                     type="number"
                     showError={showError}
                     step={1}
+                    min={1900}
                 />
                 <SelectInput
                     name={name ? `${name}.month` : 'month'}
@@ -48,6 +49,7 @@ export const YearMonthDayInput = ({ name, label, showError }: IYearMonthDayInput
                     type="number"
                     step={1}
                     showError={showError}
+                    min={1}
                 />
             </div>
         </div>

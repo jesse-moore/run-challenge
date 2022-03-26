@@ -47,7 +47,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                     <NavLogo>Logo</NavLogo>
                 </Link>
                 <NavItems>
-                    {auth.user && auth.user.groups.includes('admin') && (
+                    {auth.user && auth.user.groups && auth.user.groups.includes('admin') && (
                         <Link href="/admin" passHref>
                             <NavItem active={route.startsWith('/admin')}>Admin</NavItem>
                         </Link>
@@ -65,14 +65,14 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                             </Link>
                         </>
                     ) : (
-						<>
-                        <Link href="/login" passHref>
-                            <NavItem active={route.startsWith('/login')}>Login</NavItem>
-                        </Link>
-                        <Link href="/signup" passHref>
-                            <NavItem active={route.startsWith('/signup')}>Sign Up</NavItem>
-                        </Link>
-						</>
+                        <>
+                            <Link href="/login" passHref>
+                                <NavItem active={route.startsWith('/login')}>Login</NavItem>
+                            </Link>
+                            <Link href="/signup" passHref>
+                                <NavItem active={route.startsWith('/signup')}>Sign Up</NavItem>
+                            </Link>
+                        </>
                     )}
                 </NavItems>
             </NavBar>

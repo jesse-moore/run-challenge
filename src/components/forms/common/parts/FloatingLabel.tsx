@@ -16,7 +16,7 @@ export const FloatingLabel = ({ name, label, isFocused, isValid, value, touched 
         ? 'text-sky-600'
         : !isValid && touched
         ? 'text-red-600'
-        : isValid && touched
+        : isValid && value
         ? 'text-green-600'
         : 'text-gray-400'
     return (

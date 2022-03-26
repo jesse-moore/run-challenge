@@ -1,11 +1,24 @@
 import {
     AuthenticationDetails,
+    CodeDeliveryDetails,
     CognitoUser,
     CognitoUserAttribute,
     CognitoUserPool,
     CognitoUserSession,
     ISignUpResult,
 } from 'amazon-cognito-identity-js'
+import {
+    ICognitoChangePasswordError,
+    ICognitoCompletePasswordResetError,
+    ICognitoForgotPasswordError,
+    ICognitoInitiateAuthError,
+    ICognitoSendVerificationCodeError,
+    ICognitoVerifySignUpError,
+    ICongnitoSignUpError,
+    ILoginResult,
+    ISignInValues,
+    IUserAttributes,
+} from './types'
 
 const UserPoolId = process.env.NEXT_PUBLIC_COGNITO_POOL_ID
 const ClientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID
@@ -20,126 +33,200 @@ const UserPool = new CognitoUserPool(poolData)
 
 let cognitoUser: CognitoUser
 
-const signup = ({
-    email,
-    password,
-    username,
-}: {
-    email: string
-    password: string
-    username: string
-}): Promise<ISignUpResult> => {
-    const dataEmail = {
-        Name: 'email',
-        Value: email,
-    }
-    const attributeEmail = new CognitoUserAttribute(dataEmail)
-    return new Promise((resolve, reject) => {
-        UserPool.signUp(username, password, [attributeEmail], [], (err, data) => {
-            if (err) reject(err.message)
-            if (data) {
-                resolve(data)
-            }
-            reject('Unknown Error')
+const completeNewPasswordChallenge = (newPassword: string): Promise<void | { error: ICognitoChangePasswordError }> => {
+    return new Promise((resolve, _reject) => {
+        cognitoUser.completeNewPasswordChallenge(newPassword, null, {
+            onSuccess: () => {
+                resolve()
+            },
+
+            onFailure: (err) => {
+                resolve({ error: { name: err.name as ICognitoChangePasswordError['name'], message: err.message } })
+            },
+
+            newPasswordRequired: () => {
+                throw new Error('Callback not implemented yet')
+            },
+            mfaRequired: (challengeName: any, challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
+            totpRequired: (challengeName: any, challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
+            customChallenge: (challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
+            mfaSetup: (challengeName: any, challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
+            selectMFAType: (challengeName: any, challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
         })
     })
 }
 
-export interface ILoginResult {
-    user?: CognitoUserSession
-    newPasswordRequired?: boolean
-    passwordResetRequired?: boolean
-    error?: string
+const completePasswordReset = (
+    code: string,
+    newPassword: string
+): Promise<void | { error: ICognitoCompletePasswordResetError }> => {
+    return new Promise((resolve, _reject) => {
+        cognitoUser.confirmPassword(code, newPassword, {
+            onSuccess: () => {
+                resolve()
+            },
+
+            onFailure: (err) => {
+                resolve({
+                    error: { name: err.name as ICognitoCompletePasswordResetError['name'], message: err.message },
+                })
+            },
+        })
+    })
 }
 
-const login = ({ email, password }: { email: string; password: string }): Promise<ILoginResult> => {
-    return new Promise((resolve, reject) => {
+const forgotPassord = (email: string): Promise<CodeDeliveryDetails | { error: ICognitoForgotPasswordError }> => {
+    cognitoUser = new CognitoUser({
+        Username: email,
+        Pool: UserPool,
+    })
+    return new Promise((resolve, _reject) => {
+        cognitoUser.forgotPassword({
+            onSuccess: (data: CodeDeliveryDetails) => {
+                resolve(data)
+            },
+
+            onFailure: (err) => {
+                resolve({ error: { name: err.name as ICognitoForgotPasswordError['name'], message: err.message } })
+            },
+        })
+    })
+}
+
+const login = ({ username, password }: ISignInValues): Promise<ILoginResult | { error: ICognitoInitiateAuthError }> => {
+    return new Promise((resolve, _reject) => {
         cognitoUser = new CognitoUser({
-            Username: email,
+            Username: username,
             Pool: UserPool,
         })
         const authDetails = new AuthenticationDetails({
-            Username: email,
+            Username: username,
             Password: password,
         })
 
         const result: ILoginResult = {}
 
         cognitoUser.authenticateUser(authDetails, {
-            onSuccess: (data) => {
-                result.user = data
+            onSuccess: (_user, userConfirmationNecessary) => {
+                if (userConfirmationNecessary) {
+                    result.userConfirmationNecessary = true
+                }
                 resolve(result)
             },
 
             onFailure: (err) => {
-                if (err.code === 'PasswordResetRequiredException') {
-                    result.passwordResetRequired = true
-                    resolve(result)
-                } else {
-                    result.error = err.message
-                    reject(result)
-                }
+                resolve({ error: { name: err.name as ICognitoInitiateAuthError['name'], message: err.message } })
             },
 
             newPasswordRequired: (data) => {
-                result.user = data
-                result.newPasswordRequired = true
-                resolve(result)
+                resolve({ newPasswordRequired: true })
+            },
+            mfaRequired: (challengeName: any, challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
+            totpRequired: (challengeName: any, challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
+            customChallenge: (challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
+            mfaSetup: (challengeName: any, challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
+            },
+            selectMFAType: (challengeName: any, challengeParameters: any) => {
+                throw new Error('Callback not implemented yet')
             },
         })
     })
 }
 
-const completePasswordReset = (code: string, newPassword: string) => {
-    return new Promise((resolve, reject) => {
-        cognitoUser.confirmPassword(code, newPassword, {
-            onSuccess: (data) => {
-                resolve(data)
-            },
-
-            onFailure: (err) => {
-                reject(err)
-            },
+const logout = (): Promise<void> => {
+    return new Promise((resolve, _reject) => {
+        const user = UserPool.getCurrentUser()
+        if (!user) resolve()
+        user.signOut(() => {
+            resolve()
         })
     })
 }
 
-const forgotPassord = (email: string) => {
-    cognitoUser = new CognitoUser({
-        Username: email,
-        Pool: UserPool,
-    })
-    return new Promise((resolve, reject) => {
-        cognitoUser.forgotPassword({
-            onSuccess: (data) => {
-                resolve(data)
-            },
-
-            onFailure: (err) => {
-                reject(err)
-            },
+const sendVerificationCode = (email?: string): Promise<void | { error: ICognitoSendVerificationCodeError }> => {
+    if (!cognitoUser && !email) throw new Error('No cognito user or email provided')
+    if (!cognitoUser) {
+        cognitoUser = new CognitoUser({
+            Username: email,
+            Pool: UserPool,
         })
-    })
-}
-
-const completeNewPasswordChallenge = (newPassword: string) => {
-    return new Promise((resolve, reject) => {
-        cognitoUser.completeNewPasswordChallenge(newPassword, null, {
-            onSuccess: (data) => {
-                resolve(data)
-            },
-            onFailure: (err) => {
-                reject(err)
-            },
-        })
-    })
-}
-
-const logout = () => {
-    const user = UserPool.getCurrentUser()
-    if (user) {
-        user.signOut()
     }
+    return new Promise((resolve, _reject) => {
+        cognitoUser.resendConfirmationCode((err, data) => {
+            if (err) {
+                resolve({
+                    error: { name: err.name as ICognitoSendVerificationCodeError['name'], message: err.message },
+                })
+            } else {
+                resolve()
+            }
+        })
+    })
+}
+// {
+// 	onSuccess: (data: CodeDeliveryDetails) => {
+// 		resolve(data)
+// 	},
+
+// 	onFailure: (err) => {
+// 		resolve({
+// 			error: { name: err.name as ICognitoSendVerificationCodeError['name'], message: err.message },
+// 		})
+// 	},
+// }
+
+const signup = ({
+    password,
+    username,
+    ...attributes
+}: ISignInValues & IUserAttributes): Promise<ISignUpResult | { error: ICongnitoSignUpError }> => {
+    const userAttributes = Object.entries(attributes).map(([attribute, value]) => {
+        return new CognitoUserAttribute({
+            Name: attribute,
+            Value: value,
+        })
+    })
+    return new Promise((resolve, _reject) => {
+        UserPool.signUp(username, password, userAttributes, [], (err, data) => {
+            if (err) {
+                resolve({
+                    error: { name: err.name as ICongnitoSignUpError['name'], message: err.message },
+                })
+            } else if (data) {
+                cognitoUser = data.user
+                resolve(data)
+            }
+        })
+    })
+}
+
+const verifyUser = (code: string): Promise<void | { error: ICognitoVerifySignUpError }> => {
+    return new Promise((resolve, _reject) => {
+        cognitoUser.confirmRegistration(code, false, (err) => {
+            if (err) {
+                resolve({ error: { name: err.name as ICognitoVerifySignUpError['name'], message: err.message } })
+            } else {
+                resolve()
+            }
+        })
+    })
 }
 
 const getSession = async (user: CognitoUser): Promise<CognitoUserSession | null> => {
@@ -225,4 +312,6 @@ export {
     completeNewPasswordChallenge,
     completePasswordReset,
     forgotPassord,
+    sendVerificationCode,
+    verifyUser,
 }

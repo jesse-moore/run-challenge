@@ -1,3 +1,4 @@
+import { FlatProviders } from 'react-flat-providers'
 import '../styles/globals.css'
 import type { ReactElement, ReactNode } from 'react'
 import type { NextPage } from 'next'
@@ -19,16 +20,14 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     const getLayout = Component.getLayout ?? ((page) => page)
 
     return (
-        <ProvideAuth>
-            <ProvideSpinner>
-                <Layout>
-                    {getLayout(
-                        <div className="grid wrapper">
-                            <Component {...pageProps} />
-                        </div>
-                    )}
-                </Layout>
-            </ProvideSpinner>
-        </ProvideAuth>
+        <FlatProviders providers={[ProvideAuth, ProvideSpinner]}>
+            <Layout>
+                {getLayout(
+                    <div className="grid wrapper">
+                        <Component {...pageProps} />
+                    </div>
+                )}
+            </Layout>
+        </FlatProviders>
     )
 }

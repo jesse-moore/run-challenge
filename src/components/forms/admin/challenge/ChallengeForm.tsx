@@ -3,12 +3,13 @@ import { Form, useFormikContext } from 'formik'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
-import { CustomRadio, DateInput, TextInput } from '../../common/Inputs'
+import { CustomRadio, DateInput } from '../../common/Inputs'
 import { IntervalForm } from './IntervalForm'
 import { ChallengeType } from '../../../../dtos/ChallengeDto'
 import { UnitRadio } from './UnitRadio'
 import { Submit } from './Submit'
 import { ChallengeFormDto, ChallengeIntervalFormDto } from '../../../../dtos/ChallengeFormDto'
+import { TextInput } from '../../common'
 
 export const ChallengeForm = () => {
     const { values, setFieldValue } = useFormikContext<ChallengeFormDto>()

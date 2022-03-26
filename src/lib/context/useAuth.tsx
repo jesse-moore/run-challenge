@@ -1,20 +1,35 @@
+import { CodeDeliveryDetails, ISignUpResult } from 'amazon-cognito-identity-js'
 import React, { useState, useContext, createContext, ReactNode, useEffect } from 'react'
 import * as cognito from '../cognito'
+import {
+    ICognitoChangePasswordError,
+    ICognitoCompletePasswordResetError,
+    ICognitoForgotPasswordError,
+    ICognitoInitiateAuthError,
+    ICognitoSendVerificationCodeError,
+    ICognitoVerifySignUpError,
+    ICongnitoSignUpError,
+    ILoginResult,
+    ISignInValues,
+    IUserAttributes,
+} from '../cognito/types'
 
 interface IAuthContext {
+    signup: (values: ISignInValues & IUserAttributes) => Promise<ISignUpResult | { error: ICongnitoSignUpError }>
+    verifyUser: (code: string) => Promise<void | { error: ICognitoVerifySignUpError }>
     user: UserDataInterface | null
-    signin: (email: string, password: string) => Promise<cognito.ILoginResult>
-    signup: (email: string, password: string, username: string) => Promise<void | { error: string }>
-    signout: () => void
-    completeNewPasswordChallenge: (password: string) => Promise<any>
-    completePasswordReset: (code: string, newPassword: string) => Promise<IAuthError | void>
-    forgotPassword: (email: string) => Promise<IAuthError | void>
+    sendVerificationCode: (
+        email?: string
+    ) => Promise<void | { error: ICognitoSendVerificationCodeError }>
+    signin: (email: string, password: string) => Promise<ILoginResult | { error: ICognitoInitiateAuthError } | void>
+    signout: () => Promise<void>
+    completeNewPasswordChallenge: (password: string) => Promise<void | { error: ICognitoChangePasswordError }>
+    completePasswordReset: (
+        code: string,
+        newPassword: string
+    ) => Promise<void | { error: ICognitoCompletePasswordResetError }>
+    forgotPassword: (email: string) => Promise<CodeDeliveryDetails | { error: ICognitoForgotPasswordError }>
     isLoaded: boolean
-}
-
-interface IAuthError {
-    name: string
-    message: string
 }
 
 const AuthContext = createContext<IAuthContext>(undefined)
@@ -57,65 +72,116 @@ function useProvideAuth(children: React.ReactNode) {
         if (!user) initUser()
     }, [children])
 
-    const signin = async (email: string, password: string) => {
+    const completeNewPasswordChallenge = async (
+        password: string
+    ): Promise<void | { error: ICognitoChangePasswordError }> => {
         try {
-            const result = await cognito.login({ email, password })
-            if (result.newPasswordRequired || result.passwordResetRequired) return result
-            const user = await cognito.getUser()
-            setUser(user)
+            const result = await cognito.completeNewPasswordChallenge(password)
+            if (!result) {
+                const user = await cognito.getUser()
+                setUser(user)
+            } else {
+                return result
+            }
+        } catch (error) {
+            return { error: { name: 'InternalErrorException', message: '' } }
+        }
+    }
+
+    const completePasswordReset = async (
+        code: string,
+        newPassword: string
+    ): Promise<void | { error: ICognitoCompletePasswordResetError }> => {
+        try {
+            return await cognito.completePasswordReset(code, newPassword)
+        } catch (error) {
+            return { error: { name: 'InternalErrorException', message: '' } }
+        }
+    }
+
+    const forgotPassword = async (
+        email: string
+    ): Promise<CodeDeliveryDetails | { error: ICognitoForgotPasswordError }> => {
+        try {
+            return await cognito.forgotPassord(email)
+        } catch (error) {
+            return { error: { name: 'InternalErrorException', message: '' } }
+        }
+    }
+
+    const sendVerificationCode = async (
+        email?: string
+    ): Promise<void | { error: ICognitoSendVerificationCodeError }> => {
+        try {
+            return await cognito.sendVerificationCode(email)
+        } catch (error) {
+            return { error: { name: 'InternalErrorException', message: error.message } }
+        }
+    }
+
+    const signin = async (
+        email: string,
+        password: string
+    ): Promise<ILoginResult | { error: ICognitoInitiateAuthError } | void> => {
+        try {
+            const result = await cognito.login({ username: email, password })
+            if ('error' in result || 'newPasswordRequired' in result) {
+                return result
+            } else {
+                const user = await cognito.getUser()
+                setUser(user)
+            }
+        } catch (error) {
+            return { error: { name: 'InternalErrorException', message: '' } }
+        }
+    }
+    const signup = async (
+        values: ISignInValues & IUserAttributes
+    ): Promise<ISignUpResult | { error: ICongnitoSignUpError }> => {
+        try {
+            const result = await cognito.signup(values)
+            if ('user' in result) {
+                const user = await cognito.getUser()
+                setUser(user)
+            }
             return result
         } catch (error) {
-            return error
+            return { error: { name: 'InternalErrorException', message: '' } }
         }
     }
-    const signup = async (email: string, password: string, username: string) => {
-        try {
-            await cognito.signup({ email, password, username })
-            const user = await cognito.getUser()
-            setUser(user)
-        } catch (error) {
-            return { error: 'Error signing up, try again later' }
-        }
-    }
-    const signout = () => {
-        cognito.logout()
+    const signout = async (): Promise<void> => {
+        await cognito.logout()
         setUser(null)
     }
 
-    const completeNewPasswordChallenge = async (password: string) => {
+    const verifyUser = async (
+        code: string
+    ): Promise<void | {
+        error: ICognitoVerifySignUpError
+    }> => {
         try {
-            await cognito.completeNewPasswordChallenge(password)
-            const user = await cognito.getUser()
-            setUser(user)
+            const result = await cognito.verifyUser(code)
+            if (!result) {
+                const user = await cognito.getUser()
+                setUser(user)
+            } else {
+                return result
+            }
         } catch (error) {
-            return { error: 'Error signing up, try again later' }
-        }
-    }
-
-    const completePasswordReset = async (code: string, newPassword: string) => {
-        try {
-            const user = await cognito.completePasswordReset(code, newPassword)
-        } catch (error) {
-            return { name: error.name, message: error.message }
-        }
-    }
-
-    const forgotPassword = async (email: string) => {
-        try {
-            await cognito.forgotPassord(email)
-        } catch (error) {
-            return { name: error.name, message: error.message }
+            return { error: { name: 'InternalErrorException', message: '' } }
         }
     }
 
     return {
         user,
         isLoaded,
+        sendVerificationCode,
         signin,
         signup,
         signout,
         completeNewPasswordChallenge,
         completePasswordReset,
         forgotPassword,
+        verifyUser,
     }
 }

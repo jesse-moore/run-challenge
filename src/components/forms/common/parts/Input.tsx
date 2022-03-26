@@ -6,7 +6,8 @@ interface IInput extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = ({ error, touched, ...props }: IInput) => {
-    const borderColor = error && touched ? 'border-red-600' : !error && touched ? 'border-green-600' : 'border-gray-400'
+    const borderColor =
+        error && touched ? 'border-red-600' : !error && props.value ? 'border-green-600' : 'border-gray-400'
     return (
         <input
             {...props}
