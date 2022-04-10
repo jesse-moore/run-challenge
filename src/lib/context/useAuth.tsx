@@ -13,15 +13,19 @@ import {
     ISignInValues,
     IUserAttributes,
 } from '../cognito/types'
+import APPSETTINGS from '../../constants/APPSETTINGS'
+import { useRouter } from 'next/router'
 
 interface IAuthContext {
     signup: (values: ISignInValues & IUserAttributes) => Promise<ISignUpResult | { error: ICongnitoSignUpError }>
     verifyUser: (code: string) => Promise<void | { error: ICognitoVerifySignUpError }>
     user: UserDataInterface | null
-    sendVerificationCode: (
-        email?: string
-    ) => Promise<void | { error: ICognitoSendVerificationCodeError }>
-    signin: (email: string, password: string) => Promise<ILoginResult | { error: ICognitoInitiateAuthError } | void>
+    sendVerificationCode: (email?: string) => Promise<void | { error: ICognitoSendVerificationCodeError }>
+    signin: (
+        email: string,
+        password: string,
+        keepMeSignedIn?: boolean
+    ) => Promise<ILoginResult | { error: ICognitoInitiateAuthError } | void>
     signout: () => Promise<void>
     completeNewPasswordChallenge: (password: string) => Promise<void | { error: ICognitoChangePasswordError }>
     completePasswordReset: (
@@ -48,29 +52,51 @@ export const useAuth = () => {
 }
 
 function useProvideAuth(children: React.ReactNode) {
+    const router = useRouter()
     const [user, setUser] = useState<UserDataInterface>(null)
     const [isLoaded, setIsLoaded] = useState(false)
 
     useEffect(() => {
-        setIsLoaded(true)
-    }, [])
-
-    useEffect(() => {
-        const initUser = async () => {
-            try {
-                const user = await cognito.getUser()
-                if (!user) {
-                    signout()
-                } else {
-                    console.log(user)
-                    setUser(user)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        }
-        if (!user) initUser()
+        checkUser()
     }, [children])
+
+    const checkUser = async () => {
+        if (user && checkLastActivityTimeOut()) {
+            signout()
+            router.push('/')
+        } else if (user) {
+            updateLastActivity()
+        } else if (!user && !checkLastActivityTimeOut()) {
+            await initUser()
+            updateLastActivity()
+        }
+        if (!isLoaded) setIsLoaded(true)
+    }
+
+    const initUser = async () => {
+        try {
+            const user = await cognito.getUser()
+            if (!user) {
+                signout()
+            } else if (!checkLastActivityTimeOut()) {
+                setUser(user)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const checkLastActivityTimeOut = () => {
+        const keepMeSignedIn = localStorage.getItem('keepMeSignedIn')
+        if (keepMeSignedIn && Boolean(keepMeSignedIn)) return false
+        const lastActivity = localStorage.getItem('lastActivity')
+        if (!lastActivity) return true
+        return new Date().valueOf() - Number(lastActivity) > APPSETTINGS.LASTACTIVITYTIMEOUT
+    }
+
+    const updateLastActivity = () => {
+        localStorage.setItem('lastActivity', new Date().valueOf().toString())
+    }
 
     const completeNewPasswordChallenge = async (
         password: string
@@ -121,7 +147,8 @@ function useProvideAuth(children: React.ReactNode) {
 
     const signin = async (
         email: string,
-        password: string
+        password: string,
+        keepMeSignedIn: boolean
     ): Promise<ILoginResult | { error: ICognitoInitiateAuthError } | void> => {
         try {
             const result = await cognito.login({ username: email, password })
@@ -130,6 +157,10 @@ function useProvideAuth(children: React.ReactNode) {
             } else {
                 const user = await cognito.getUser()
                 setUser(user)
+                updateLastActivity()
+                if (keepMeSignedIn) {
+                    localStorage.setItem('keepMeSignedIn', 'true')
+                }
             }
         } catch (error) {
             return { error: { name: 'InternalErrorException', message: '' } }
@@ -152,6 +183,8 @@ function useProvideAuth(children: React.ReactNode) {
     const signout = async (): Promise<void> => {
         await cognito.logout()
         setUser(null)
+        localStorage.removeItem('lastActivity')
+        localStorage.removeItem('keepMeSignedIn')
     }
 
     const verifyUser = async (

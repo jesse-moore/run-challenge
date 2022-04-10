@@ -4,20 +4,23 @@ import SendVerificationCodeForm from '../components/forms/user/SendVerificationC
 import VerifyUserForm from '../components/forms/user/VerifyUserForm'
 import { SignUpDto } from '../dtos/SignUpDto'
 import { SignUpFormDto } from '../dtos/SignUpFormDto'
-import { mapper } from '../lib/automapper'
+import { clientMapper } from '../lib/automapper/clientMapper'
 import { useAuth } from '../lib/context/useAuth'
 import { useRouter } from 'next/router'
 import { FormError, FormTitle } from '../components/forms/common'
-import { ISignInValues } from '../lib/cognito/types'
+import type { ISignInValues } from '../lib/cognito/types'
 import { FormNotif } from '../components/forms/common/FormNotif'
 import { useSpinner } from '../lib/context/useSpinner'
 import APPSETTINGS from '../constants/APPSETTINGS'
 import { FormSuccess } from '../components/forms/common/FormSuccess'
+import { useDialog } from '../lib/context/useDialog'
+import logger from '../api/logger'
 
 export default function SignUp() {
     const auth = useAuth()
     const router = useRouter()
     const spinner = useSpinner()
+    const dialog = useDialog()
     const [error, setError] = useState('')
     const [notif, setNotif] = useState('')
     const [success, setSuccess] = useState('')
@@ -27,7 +30,7 @@ export default function SignUp() {
     const [emailsSent, setEmailsSent] = useState(0)
 
     const handleSignUp = async (signUpFormValues: SignUpFormDto) => {
-        const signUpValues = mapper.map(signUpFormValues, SignUpDto, SignUpFormDto)
+        const signUpValues = clientMapper.map(signUpFormValues, SignUpDto, SignUpFormDto)
         spinner.start()
         const result = await auth.signup(signUpValues)
         spinner.stop()
@@ -38,19 +41,33 @@ export default function SignUp() {
         } else if ('error' in result && result.error.name === 'CodeDeliveryFailureException') {
             setError('Error sending confirmation code, check email address and try again.')
         } else if ('error' in result) {
-            setError('Error occurred registering user, please try again later.')
+            logger.error({ name: result.error.name, message: result.error.message })
+            await dialog.alert({
+                title: 'Registration Error',
+                message: 'Error occurred registering user, please try again later.',
+            })
+            router.push('/')
         } else if (!result.userConfirmed) {
+            setError('')
             setNotif('Please enter the verification code that was sent to your email.')
             setSignInValues({ username: signUpFormValues.email, password: signUpFormValues.password })
             setStage(1)
+        } else {
+            router.push('/login')
         }
     }
 
     const handleVerifyUser = async (code: string) => {
         setError('')
         if (code === 'resend' && emailsSent >= APPSETTINGS.MAXVERIFICATIONEMAILS) {
-            setError('Please contact administator to complete signup')
-            setNotif('')
+            await dialog.alert({
+                title: 'Max Verifications Sent',
+                message: 'Please contact administator to complete signup',
+            })
+            logger.warning({
+                name: 'MaxEmailsSent',
+                message: `Max verifications sent on signup (${emailsSent}) for user ${signInValues.username}`,
+            })
             return
         }
         if (code === 'resend') {
@@ -73,8 +90,12 @@ export default function SignUp() {
             setNotif('Verification code is expired, resend verification code?')
             setStage(2)
         } else {
-            setNotif('')
-            setError('Error occurred verifying user, please try again later')
+            logger.error({ name: result.error.name, message: result.error.message })
+            await dialog.alert({
+                title: 'Registration Error',
+                message: 'An error occurred verifying user, please try again later.',
+            })
+            router.push('/')
         }
     }
 
@@ -90,9 +111,12 @@ export default function SignUp() {
             setNotif('')
             setStage(0)
         } else if ('error' in result) {
-            setError('Error occurred verifying user, please try again later')
-            setNotif('')
-            setStage(1)
+            logger.error({ name: result.error.name, message: result.error.message })
+            await dialog.alert({
+                title: 'Registration Error',
+                message: 'An error occurred sending verification code, please try verifying your account later.',
+            })
+            router.push('/')
         }
     }
 
@@ -106,7 +130,13 @@ export default function SignUp() {
         if (!result) {
             router.push('/profile/overview')
         } else {
-            setError('Error occurred registering user, please try again later.')
+            const message = 'error' in result ? `${result.error.name} - ${result.error.message}` : result
+            logger.error({ name: 'LogInAfterSignUp', message: `Username: ${username}, ${message}` })
+            await dialog.alert({
+                title: 'Log In Error',
+                message: 'An error occurred auto logging in, please try logging in manaully.',
+            })
+            router.push('/login')
         }
     }
 

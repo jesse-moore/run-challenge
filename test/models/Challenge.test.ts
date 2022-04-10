@@ -5,7 +5,7 @@ import { Mongoose } from 'mongoose'
 import { ChallengeDto, Unit } from '../../src/dtos/ChallengeDto'
 import { ChallengeFormDto } from '../../src/dtos/ChallengeFormDto'
 import { ChallengeDocument } from '../../src/interfaces/mongoose.gen'
-import { mapper } from '../../src/lib/automapper'
+import { clientMapper } from '../../src/lib/automapper/clientMapper'
 import dbConnect from '../../src/lib/dbConnect'
 import Challege from '../../src/models/Challenge'
 import { convert } from '../../src/utils'
@@ -22,7 +22,7 @@ describe('Challenge Model', function () {
         await db.connection.close()
     })
     it('Create Challenge from ChallengeFormDto', async function () {
-        const exampleDto = mapper.map(example, ChallengeDto, ChallengeFormDto)
+        const exampleDto = clientMapper.map(example, ChallengeDto, ChallengeFormDto)
         const challenge: ChallengeDocument = new Challege({ ...exampleDto })
         expect(challenge.validateSync()).to.be.undefined
         await challenge.save()
@@ -30,7 +30,7 @@ describe('Challenge Model', function () {
     it('Create ChallengeFormDto from Retrieved Challege', async function () {
         const challenge: ChallengeDocument = await Challege.findOne({ name: 'Test Challenge' })
         const challengeDto = challenge.toJSON() as unknown as ChallengeDto
-        const formDto = mapper.map(challengeDto, ChallengeFormDto, ChallengeDto)
+        const formDto = clientMapper.map(challengeDto, ChallengeFormDto, ChallengeDto)
         formDto.intervals.forEach((interval) => {
             console.log(interval.requirements)
         })

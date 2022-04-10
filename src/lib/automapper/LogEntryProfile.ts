@@ -1,6 +1,5 @@
 import { fromValue, mapFrom, MappingProfile } from '@automapper/core'
-import { Entry, Severity } from '@google-cloud/logging'
-import { LogEntry } from '@google-cloud/logging/build/src/entry'
+import { Entry } from '@google-cloud/logging'
 import { LogEntryDto } from '../../dtos/LogEntryDto'
 
 export const logEntryProfile: MappingProfile = (mapper) => {
@@ -18,7 +17,7 @@ export const logEntryProfile: MappingProfile = (mapper) => {
         .forMember(
             (destination) => destination.data,
             mapFrom((source) => {
-                return source.text
+                return source.data
             })
         )
 }

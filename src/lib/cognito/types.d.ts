@@ -26,7 +26,6 @@ export interface ISignInValues {
 
 export interface ILoginResult {
     newPasswordRequired?: boolean
-    userConfirmationNecessary?: boolean
 }
 
 enum SignUpErrorName {

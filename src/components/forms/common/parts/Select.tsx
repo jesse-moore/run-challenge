@@ -12,15 +12,17 @@ interface ISelect extends InputHTMLAttributes<HTMLSelectElement> {
     onBlur?: (value: any) => void
     readonly?: boolean
     disabled?: boolean
+    bgColor?: string
 }
 
-export const Select = ({ error, touched, children, ...props }: ISelect) => {
-    const borderColor = error && touched ? 'border-red-600' : !error && props.value ? 'border-green-600' : 'border-gray-400'
+export const Select = ({ error, touched, children, bgColor = 'bg-white', ...props }: ISelect) => {
+    const borderColor =
+        error && touched ? 'border-red-600' : !error && props.value ? 'border-green-600' : 'border-gray-400'
     return (
         <select
             {...props}
             id={props.name}
-            className={`${borderColor} h-full w-full min-w-max border pl-2 pr-8 bg-slate-100 transition-all rounded-sm focus:border-sky-600 focus:outline-none`}
+            className={`${borderColor} ${bgColor} h-full w-full min-w-max border pl-2 pr-8 transition-all rounded-sm focus:border-sky-600 focus:outline-none`}
         >
             {children}
         </select>

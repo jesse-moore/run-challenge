@@ -1,9 +1,9 @@
 import * as Yup from 'yup'
 
-export const emailValdiationCode = Yup.number()
+export const emailValdiationCode = Yup.string()
     .required('Validation code is required')
-    .min(100000, 'Invalid length')
-    .max(999999, 'Invalid length')
+    .matches(/^\d+$/, 'Must contain only integers')
+    .length(6, 'Must be 6 digits in length')
 
 export const password = Yup.string()
     .required('New password is required')

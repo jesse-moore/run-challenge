@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useAuth } from '../../lib/context/useAuth'
 import { Pulse } from './Spinner'
+import Dialog from './Dialog'
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
     const { route } = useRouter()
@@ -81,6 +82,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                 <div className="h-[1000px]"></div>
             </div>
             <Pulse />
+            <Dialog />
         </div>
     )
 }

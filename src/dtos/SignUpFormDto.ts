@@ -13,13 +13,13 @@ export class SignUpFormDto {
     @AutoMap({ typeFn: () => YearMonthDayFormDto })
     birthdate: YearMonthDayFormDto
 
-    constructor() {
-        this.email = 'moore.jesse@gmail.com'
-        this.password = 'Testing01!'
-        this.confirmPassword = 'Testing01!'
-        this.gender = 'male'
-        this.name = ''
-        this.birthdate = new YearMonthDayFormDto()
+    constructor(user?: UserDataInterface) {
+        this.email = user.email || ''
+        this.password = 'aaaaaaa'
+        this.confirmPassword = ''
+        this.gender = user.gender || ''
+        this.name = user.name || ''
+        this.birthdate = new YearMonthDayFormDto(user.birthdate)
     }
 }
 
@@ -30,9 +30,10 @@ class YearMonthDayFormDto {
     month: number
     @AutoMap()
     day: number
-    constructor() {
-        this.year = 1999
-        this.month = 4
-        this.day = 14
+    constructor(date?: string) {
+        const dateObject = date ? new Date(date) : null
+        this.year = dateObject ? dateObject.getFullYear() : null
+        this.month = dateObject ? dateObject.getMonth() : null
+        this.day = dateObject ? dateObject.getDate() : null
     }
 }

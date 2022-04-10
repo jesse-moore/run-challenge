@@ -119,7 +119,7 @@ const login = ({ username, password }: ISignInValues): Promise<ILoginResult | { 
         cognitoUser.authenticateUser(authDetails, {
             onSuccess: (_user, userConfirmationNecessary) => {
                 if (userConfirmationNecessary) {
-                    result.userConfirmationNecessary = true
+					// TODO
                 }
                 resolve(result)
             },
@@ -245,7 +245,6 @@ const getUserData = async (user: CognitoUser): Promise<UserDataInterface | null>
         if (user) {
             getSession(user).then((session) => {
                 const username = user.getUsername()
-                console.log(session)
                 user.getUserAttributes((err: Error | undefined, attributes: CognitoUserAttribute[] | undefined) => {
                     if (err) {
                         reject(err)

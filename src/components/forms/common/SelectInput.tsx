@@ -9,9 +9,18 @@ interface ISelectInput {
     options: { name: string; value: string }[]
     indicateValidity?: boolean
     showError?: boolean
+    bgColor?: string
 }
 
-export const SelectInput = ({ label, options, showError, indicateValidity = true, name, ...props }: ISelectInput) => {
+export const SelectInput = ({
+    label,
+    options,
+    showError,
+    indicateValidity = true,
+    name,
+    bgColor = 'bg-white',
+    ...props
+}: ISelectInput) => {
     const [isFocused, setIsFocused] = useState(false)
     const [field, meta, helper] = useField<number | string>(name)
     const { value, onChange } = field
@@ -27,7 +36,16 @@ export const SelectInput = ({ label, options, showError, indicateValidity = true
     return (
         <InputWrapper>
             <Select
-                {...{ name, value, onChange, touched, error, onBlur: handleBlur, onFocus: () => setIsFocused(true) }}
+                {...{
+                    name,
+                    value,
+                    onChange,
+                    touched,
+                    error,
+                    onBlur: handleBlur,
+                    bgColor,
+                    onFocus: () => setIsFocused(true),
+                }}
             >
                 <option value="">-- select an option --</option>
                 {options.map(({ name, value }) => (
@@ -42,8 +60,10 @@ export const SelectInput = ({ label, options, showError, indicateValidity = true
                     label,
                     isFocused,
                     isValid: !error,
-                    touched: !indicateValidity ? false : touched,
+                    touched,
                     value,
+                    bgColor,
+                    indicateValidity,
                 }}
             />
             {touched && error && showError ? <InputError {...{ error }} /> : null}

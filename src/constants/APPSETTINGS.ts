@@ -1,3 +1,4 @@
 export default {
     MAXVERIFICATIONEMAILS: 3,
+    LASTACTIVITYTIMEOUT: 1_800_000, // 30min
 }

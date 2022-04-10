@@ -2,7 +2,7 @@ import config from 'dotenv'
 config.config({ path: '.env.test' })
 import { expect } from 'chai'
 import { Mongoose } from 'mongoose'
-import { mapper } from '../../src/lib/automapper'
+import { clientMapper } from '../../src/lib/automapper/clientMapper'
 import dbConnect from '../../src/lib/dbConnect'
 import { after } from 'mocha'
 import { ActivityDto, ActivityFormDto } from '../../src/dtos/ActivityDto'
@@ -27,7 +27,7 @@ describe('Activity Model', function () {
         activityFormDto.duration = 3720
         activityFormDto.timezone = 'America/Chicago'
         activityFormDto.units = Unit.Imperial
-        const activityDto = mapper.map(activityFormDto, ActivityDto, ActivityFormDto)
+        const activityDto = clientMapper.map(activityFormDto, ActivityDto, ActivityFormDto)
         const activity = new Activity(activityDto)
         const response = await activity.save()
         console.log(response)
@@ -35,7 +35,7 @@ describe('Activity Model', function () {
     it('Create ActivityFormDto from Retrieved Activity', async () => {
         const activity: ActivityDocument = await Activity.findById('61ffdd92aa68019b9acd435a')
         const activityDto = activity.toJSON() as unknown as ActivityDto
-        const activityFormDto = mapper.map(activityDto, ActivityFormDto, ActivityDto)
+        const activityFormDto = clientMapper.map(activityDto, ActivityFormDto, ActivityDto)
         console.log(activityFormDto)
     })
 })

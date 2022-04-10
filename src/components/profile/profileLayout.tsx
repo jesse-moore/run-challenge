@@ -11,6 +11,7 @@ export default function ProfileLayout({ children }: IProfileLayout) {
             <TabsLayout
                 tabs={[
                     { title: 'Overview', path: '/profile/overview' },
+                    { title: 'Account', path: '/profile/account' },
                 ]}
             >
                 {children}

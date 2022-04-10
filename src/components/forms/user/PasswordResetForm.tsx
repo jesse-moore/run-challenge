@@ -32,8 +32,8 @@ export default ({ onSubmit }: IPasswordResetForm) => {
         >
             <Form>
                 <div className="flex w-full justify-center flex-col gap-y-4">
-                    <TextInput label="Verfication Code" name="code" type="number" min={100000} max={999999} />
-                    <PasswordInputWithRequirements label="Password" name="password" validationSchema={password} />
+                    <TextInput label="Verfication Code" name="code" type="text" showError/>
+                    <PasswordInputWithRequirements label="Password" name="password" validationSchema={password}/>
                     <PasswordInput label="Confirm Password" name="passwordConfirmation" showError />
                     <button
                         className="w-full rounded-md bg-sky-700 border border-primary py-3 px-5 bg-primary text-base text-white cursor-pointer hover:bg-opacity-90"

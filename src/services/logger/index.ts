@@ -7,39 +7,42 @@ const logName = process.env.GCLOUD_LOGGER_LOG_NAME
 if (!projectId || !logName) throw new Error('Invalid logger config')
 const logger = new Logging({ projectId, keyFilename: 'gcloud_key.json' }).log(logName)
 
-const writeLog = (text: string, labels: { [k: string]: string } = {}, severity: LogEntrySeverity) => {
+const writeLog = (data: LogData, labels: { [k: string]: string } = {}, severity: LogEntrySeverity) => {
     const metadata: LogEntry = {
         resource: { type: 'global' },
         labels: { env: process.env.NODE_ENV, ...labels },
         severity: String(severity),
     }
-    logger.write(new Entry(metadata, text))
+
+    logger.write(new Entry(metadata, data))
 }
 
+type LogData = string | { [k: string]: string }
+
 export default {
-    debug: (text: string, labels?: { [k: string]: string }) => {
-        writeLog(text, labels, LogEntrySeverity.DEBUG)
+    debug: (data: LogData, labels?: { [k: string]: string }) => {
+        writeLog(data, labels, LogEntrySeverity.DEBUG)
     },
-    info: (text: string, labels?: { [k: string]: string }) => {
-        writeLog(text, labels, LogEntrySeverity.INFO)
+    info: (data: LogData, labels?: { [k: string]: string }) => {
+        writeLog(data, labels, LogEntrySeverity.INFO)
     },
-    emergency: (text: string, labels?: { [k: string]: string }) => {
-        writeLog(text, labels, LogEntrySeverity.EMERGENCY)
+    emergency: (data: LogData, labels?: { [k: string]: string }) => {
+        writeLog(data, labels, LogEntrySeverity.EMERGENCY)
     },
-    error: (text: string, labels?: { [k: string]: string }) => {
-        writeLog(text, labels, LogEntrySeverity.ERROR)
+    error: (data: LogData, labels?: { [k: string]: string }) => {
+        writeLog(data, labels, LogEntrySeverity.ERROR)
     },
-    notif: (text: string, labels?: { [k: string]: string }) => {
-        writeLog(text, labels, LogEntrySeverity.NOTICE)
+    notif: (data: LogData, labels?: { [k: string]: string }) => {
+        writeLog(data, labels, LogEntrySeverity.NOTICE)
     },
-    critical: (text: string, labels?: { [k: string]: string }) => {
-        writeLog(text, labels, LogEntrySeverity.CRITICAL)
+    critical: (data: LogData, labels?: { [k: string]: string }) => {
+        writeLog(data, labels, LogEntrySeverity.CRITICAL)
     },
-    alert: (text: string, labels?: { [k: string]: string }) => {
-        writeLog(text, labels, LogEntrySeverity.ALERT)
+    alert: (data: LogData, labels?: { [k: string]: string }) => {
+        writeLog(data, labels, LogEntrySeverity.ALERT)
     },
-    warning: (text: string, labels?: { [k: string]: string }) => {
-        writeLog(text, labels, LogEntrySeverity.WARNING)
+    warning: (data: LogData, labels?: { [k: string]: string }) => {
+        writeLog(data, labels, LogEntrySeverity.WARNING)
     },
     write: (entry: Entry) => logger.write(entry),
 }

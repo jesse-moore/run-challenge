@@ -6,6 +6,7 @@ import { PasswordInputWithRequirements } from '../common/PasswordInputWithRequir
 import { YearMonthDayInput } from '../common/YearMonthDayInput'
 import { password, passwordConfirmation, yearMonthDay } from '../validationSchemas'
 import { SignUpFormDto } from '../../../dtos/SignUpFormDto'
+import { useDialog } from '../../../lib/context/useDialog'
 
 interface ISignUpFormWrapper {
     onSubmit: (values: SignUpFormDto) => void
@@ -44,6 +45,7 @@ interface ISignUpForm {
 
 const SignUpForm = ({ error, existingEmails = [] }: ISignUpForm) => {
     const { isSubmitting, isValid, validateForm } = useFormikContext<SignUpFormDto>()
+    const dialog = useDialog()
 
     useEffect(() => {
         validateForm()

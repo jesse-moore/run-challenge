@@ -3,9 +3,8 @@ import { classes } from '@automapper/classes'
 import { challengeProfile } from './ChallengeProfile'
 import { activityProfile } from './ActivityProfile'
 import { signUpProfile } from './SignUpProfile'
-import { logEntryProfile } from './LogEntryProfile'
 
-export const mapper = createMapper({
+export const clientMapper = createMapper({
     name: 'automapper',
     pluginInitializer: classes,
     errorHandler: {
@@ -15,7 +14,6 @@ export const mapper = createMapper({
     },
 })
 
-mapper.addProfile(challengeProfile)
-mapper.addProfile(activityProfile)
-mapper.addProfile(signUpProfile)
-mapper.addProfile(logEntryProfile)
+clientMapper.addProfile(challengeProfile)
+clientMapper.addProfile(activityProfile)
+clientMapper.addProfile(signUpProfile)

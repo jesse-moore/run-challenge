@@ -6,6 +6,8 @@ import type { AppProps } from 'next/app'
 import { ProvideAuth } from '../lib/context/useAuth'
 import { ProvideSpinner } from '../lib/context/useSpinner'
 import { Layout } from '../components/common/Layout'
+import { ProvideDialog } from '../lib/context/useDialog'
+import { ProvideUI } from '../lib/context/useUI'
 
 type NextPageWithLayout = NextPage & {
     getLayout?: (page: ReactElement) => ReactNode
@@ -20,14 +22,18 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     const getLayout = Component.getLayout ?? ((page) => page)
 
     return (
-        <FlatProviders providers={[ProvideAuth, ProvideSpinner]}>
-            <Layout>
-                {getLayout(
-                    <div className="grid wrapper">
-                        <Component {...pageProps} />
-                    </div>
-                )}
-            </Layout>
-        </FlatProviders>
+        <ProvideAuth>
+            <ProvideUI>
+                <FlatProviders providers={[ProvideSpinner, ProvideDialog]}>
+                    <Layout>
+                        {getLayout(
+                            <div className="grid wrapper">
+                                <Component {...pageProps} />
+                            </div>
+                        )}
+                    </Layout>
+                </FlatProviders>
+            </ProvideUI>
+        </ProvideAuth>
     )
 }

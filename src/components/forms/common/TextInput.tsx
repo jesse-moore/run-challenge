@@ -7,6 +7,7 @@ export interface ITextInput extends InputHTMLAttributes<HTMLInputElement> {
     readonly?: boolean
     showError?: boolean
     indicateValidity?: boolean
+    bgColor?: string
 }
 
 export const TextInput = ({
@@ -16,6 +17,7 @@ export const TextInput = ({
     type = 'text',
     indicateValidity = true,
     name,
+    bgColor,
     ...props
 }: ITextInput) => {
     const [isFocused, setIsFocused] = useState(false)
@@ -31,14 +33,16 @@ export const TextInput = ({
         <InputWrapper>
             <Input
                 {...{
-					...props,
+                    ...props,
                     ...field,
                     type,
-                    touched: !indicateValidity ? false : touched,
+                    touched,
+                    indicateValidity,
                     error,
                     onChange,
                     onFocus: () => setIsFocused(true),
                     onBlur: handleBlur,
+                    bgColor,
                 }}
             />
             <FloatingLabel
@@ -47,8 +51,10 @@ export const TextInput = ({
                     label,
                     isFocused,
                     isValid: !error,
-                    touched: !indicateValidity ? false : touched,
+                    touched,
+                    indicateValidity,
                     value,
+                    bgColor,
                 }}
             />
             {touched && error && showError ? <InputError {...{ error }} /> : null}

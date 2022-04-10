@@ -12,25 +12,35 @@ export enum LogEntrySeverity {
     DEBUG = 'DEBUG',
 }
 
+export type LogData = string | { [k: string]: string }
+
 export class LogEntryDto {
     @AutoMap()
-    text: string
+    data: LogData
     @AutoMap()
     severity: keyof typeof LogEntrySeverity
     @AutoMap()
     labels: { [k: string]: string }
     constructor(body?: any) {
         if (!body) return
-        this.text = body.text
+        this.data = body.data
         this.severity = typeof body.severity === 'string' ? body.severity.toUpperCase() : ''
         this.labels = { env: process.env.NODE_ENV, ...body.labels }
     }
 
     validate(): string | void {
         try {
-            if (!this.text) throw new Error('Text field required')
-            if (typeof this.text !== 'string') throw new Error('Invalid text field')
-            if (this.text.length > 255) throw new Error('Text field length exceeded')
+            if (!this.data) throw new Error('Data field required')
+            if (typeof this.data === 'string') {
+                if (this.data.length > 255) throw new Error('Data field length exceeded')
+            } else {
+                try {
+                    const dataString = JSON.stringify(this.data)
+                    if (dataString.length > 255) throw new Error('Data field length exceeded')
+                } catch (error) {
+                    throw new Error('Invalid data type')
+                }
+            }
             if (!this.severity) throw new Error('Severity field required')
             if (!(this.severity in LogEntrySeverity)) throw Error('Invalid severity type')
             if (this.labels) {

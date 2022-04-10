@@ -27,9 +27,13 @@ export default ({ onSubmit }: IVerifyUserFormComponent) => {
                 <div className="flex w-full justify-center flex-col gap-y-4">
                     <TextInput label="Verfication Code" name="code" type="number" min={100000} max={999999} showError />
                     <div className="text-sm font-medium text-sky-700 -mt-4">
-                        <span className="cursor-pointer" onClick={() => onSubmit('resend')}>
+                        <button
+                            type="button"
+                            className="cursor-pointer disabled:text-gray-500"
+                            onClick={() => onSubmit('resend')}
+                        >
                             Resend Verification Code
-                        </span>
+                        </button>
                     </div>
                     <button
                         className="w-full rounded-md bg-sky-700 border border-primary py-3 px-5 bg-primary text-base text-white cursor-pointer hover:bg-opacity-90"

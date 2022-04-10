@@ -2,7 +2,7 @@ import { Formik } from 'formik'
 import * as Yup from 'yup'
 import { ChallengeFormDto } from '../../../../dtos/ChallengeFormDto'
 import { ChallengeForm as Form } from './ChallengeForm'
-import { mapper } from '../../../../lib/automapper'
+import { clientMapper } from '../../../../lib/automapper/clientMapper'
 import { ChallengeDto } from '../../../../dtos/ChallengeDto'
 
 interface IChallengeForm {
@@ -36,7 +36,7 @@ export const ChallengeForm = ({ initialValues = new ChallengeFormDto() }: IChall
     }
 
     const test = () => {
-        const test = mapper.map(initialValues, ChallengeDto, ChallengeFormDto)
+        const test = clientMapper.map(initialValues, ChallengeDto, ChallengeFormDto)
         console.log(test)
     }
 

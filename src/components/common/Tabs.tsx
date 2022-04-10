@@ -22,16 +22,14 @@ export const Tabs = ({ activeTab, children }: ITabs) => {
 interface ITab {
     title: string
     isActive?: boolean
-    onClick: () => void
 }
 
-export const Tab = ({ isActive, onClick, title }: ITab) => {
+export const Tab = ({ isActive, title }: ITab) => {
     return (
         <button
             className={`font-medium uppercase relative py-3 text-center w-36 text-sm cursor-pointer select-none focus:outline-none ${
                 isActive ? 'text-[#5a67d8]' : 'text-gray-700'
             }`}
-            onClick={onClick}
         >
             {title}
         </button>
