@@ -55,6 +55,7 @@ export const TextInput = ({
                     indicateValidity,
                     value,
                     bgColor,
+                    disabled: props.disabled,
                 }}
             />
             {touched && error && showError ? <InputError {...{ error }} /> : null}

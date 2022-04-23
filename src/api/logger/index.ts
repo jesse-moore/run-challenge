@@ -2,7 +2,7 @@ import axios from 'axios'
 import { axiosConfig } from '..'
 import { LogData, LogEntryDto, LogEntrySeverity } from '../../dtos/LogEntryDto'
 
-const postLog = axios.create({ ...axiosConfig, baseURL: 'api/log', method: 'POST' })
+const postLog = axios.create({ ...axiosConfig, baseURL: '/api/log', method: 'POST' })
 
 export default {
     debug: (data: LogData, labels?: { [k: string]: string }) => {

@@ -27,6 +27,7 @@ interface IAuthContext {
         keepMeSignedIn?: boolean
     ) => Promise<ILoginResult | { error: ICognitoInitiateAuthError } | void>
     signout: () => Promise<void>
+    updateUserAttributes: (attributes: IUserAttributes) => Promise<void | { error: ICognitoVerifySignUpError }>
     completeNewPasswordChallenge: (password: string) => Promise<void | { error: ICognitoChangePasswordError }>
     completePasswordReset: (
         code: string,
@@ -34,6 +35,9 @@ interface IAuthContext {
     ) => Promise<void | { error: ICognitoCompletePasswordResetError }>
     forgotPassword: (email: string) => Promise<CodeDeliveryDetails | { error: ICognitoForgotPasswordError }>
     isLoaded: boolean
+    checkAuthenticationStatus: () => boolean
+    verifyUserAttribute: (attributeName: string, code: string) => Promise<void | { error: ICognitoVerifySignUpError }>
+	sendAttributeVerificationCode: ( attributeName: string ) => Promise<void | { error: ICognitoSendVerificationCodeError }>
 }
 
 const AuthContext = createContext<IAuthContext>(undefined)
@@ -84,6 +88,10 @@ function useProvideAuth(children: React.ReactNode) {
         } catch (error) {
             console.log(error)
         }
+    }
+
+    const checkAuthenticationStatus = () => {
+        return cognito.checkAuthenticationStatus()
     }
 
     const checkLastActivityTimeOut = () => {
@@ -145,6 +153,16 @@ function useProvideAuth(children: React.ReactNode) {
         }
     }
 
+    const sendAttributeVerificationCode = async (
+        attributeName: string
+    ): Promise<void | { error: ICognitoSendVerificationCodeError }> => {
+        try {
+            return await cognito.sendUserAttributeVerification(attributeName)
+        } catch (error) {
+            return { error: { name: 'InternalErrorException', message: error.message } }
+        }
+    }
+
     const signin = async (
         email: string,
         password: string,
@@ -187,6 +205,37 @@ function useProvideAuth(children: React.ReactNode) {
         localStorage.removeItem('keepMeSignedIn')
     }
 
+    const updateUserAttributes = async (
+        attributes: IUserAttributes
+    ): Promise<void | { error: ICognitoVerifySignUpError }> => {
+        try {
+            const result = await cognito.updateUserAttributes(attributes)
+            if (!result) {
+                const user = await cognito.getUser()
+                setUser(user)
+            }
+            return result
+        } catch (error) {
+            return { error: { name: 'InternalErrorException', message: '' } }
+        }
+    }
+
+    const verifyUserAttribute = async (
+        attributeName: string,
+        code: string
+    ): Promise<void | { error: ICognitoVerifySignUpError }> => {
+        try {
+            const result = await cognito.verifyUserAttribute(attributeName, code)
+            if (!result) {
+                const user = await cognito.getUser()
+                setUser(user)
+            }
+            return result
+        } catch (error) {
+            return { error: { name: 'InternalErrorException', message: '' } }
+        }
+    }
+
     const verifyUser = async (
         code: string
     ): Promise<void | {
@@ -216,5 +265,9 @@ function useProvideAuth(children: React.ReactNode) {
         completePasswordReset,
         forgotPassword,
         verifyUser,
+        updateUserAttributes,
+        checkAuthenticationStatus,
+        verifyUserAttribute,
+		sendAttributeVerificationCode
     }
 }

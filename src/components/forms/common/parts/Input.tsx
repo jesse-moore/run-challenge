@@ -18,7 +18,7 @@ export const Input = ({ error, touched, indicateValidity, bgColor = 'bg-white', 
         <input
             {...props}
             id={props.name}
-            className={`${borderColor} ${bgColor} h-full w-full border px-2 transition-all rounded-sm focus:border-sky-600 focus:outline-none`}
+            className={`${borderColor} ${bgColor} h-full w-full read-only:opacity-50 disabled:opacity-50 border px-2 transition-all rounded-sm focus:border-sky-600 focus:outline-none`}
         />
     )
 }

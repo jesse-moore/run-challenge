@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useAuth } from '../../lib/context/useAuth'
 import { Pulse } from './Spinner'
-import Dialog from './Dialog'
+import Dialog from '../dialogs/Dialog'
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
     const { route } = useRouter()

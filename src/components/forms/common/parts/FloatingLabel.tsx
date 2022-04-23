@@ -9,6 +9,7 @@ interface IFloatingLabel {
     touched: boolean
     indicateValidity?: boolean
     bgColor?: string
+    disabled?: boolean
 }
 
 export const FloatingLabel = ({
@@ -20,6 +21,7 @@ export const FloatingLabel = ({
     touched,
     indicateValidity,
     bgColor = 'bg-white',
+    disabled,
 }: IFloatingLabel) => {
     const hasValue = typeof value === 'number' || (typeof value === 'string' && value.length > 0)
     const baseLabelClass = 'absolute -translate-y-1/2 left-1 transition-all px-1 pointer-events-none'
@@ -35,7 +37,9 @@ export const FloatingLabel = ({
             htmlFor={name}
             className={`${isFocused || hasValue ? 'text-sm top-0' : 'top-1/2 w-full pr-8'} ${baseLabelClass}`}
         >
-            <div className={`${labelColor} ${isFocused || hasValue ? '' : 'w-full'} pl-1 mr-2 ${bgColor}`}>{label}</div>
+            <div className={`${labelColor} ${isFocused || hasValue ? '' : 'w-full'} px-1 mr-2 rounded ${bgColor}`}>
+                {label}
+            </div>
         </label>
     )
 }

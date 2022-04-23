@@ -25,7 +25,7 @@ export default ({ onSubmit }: IVerifyUserFormComponent) => {
         >
             <Form>
                 <div className="flex w-full justify-center flex-col gap-y-4">
-                    <TextInput label="Verfication Code" name="code" type="number" min={100000} max={999999} showError />
+                    <TextInput label="Verfication Code" name="code" type="text" showError />
                     <div className="text-sm font-medium text-sky-700 -mt-4">
                         <button
                             type="button"

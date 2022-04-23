@@ -10,6 +10,7 @@ export interface IPasswordInput {
     disabled?: boolean
     showError?: boolean
     indicateValidity?: boolean
+    bgColor?: string
 }
 
 export const PasswordInput = ({
@@ -18,6 +19,7 @@ export const PasswordInput = ({
     disabled,
     showError,
     indicateValidity = true,
+    bgColor,
     ...props
 }: IPasswordInput) => {
     const [isFocused, setIsFocused] = useState(false)
@@ -43,6 +45,7 @@ export const PasswordInput = ({
                     onChange,
                     onFocus: () => setIsFocused(true),
                     onBlur: handleBlur,
+					bgColor
                 }}
             />
             <InputIconRight onClick={() => setVisible(!visible)}>
@@ -56,6 +59,7 @@ export const PasswordInput = ({
                     isValid: !error,
                     touched: !indicateValidity ? false : touched,
                     value,
+					bgColor
                 }}
             />
             {touched && error && showError ? <InputError {...{ error }} /> : null}

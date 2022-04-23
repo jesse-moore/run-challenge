@@ -5,6 +5,7 @@ import {
     CognitoUserAttribute,
     CognitoUserPool,
     CognitoUserSession,
+    ICognitoUserAttributeData,
     ISignUpResult,
 } from 'amazon-cognito-identity-js'
 import {
@@ -31,7 +32,7 @@ const poolData: { UserPoolId: string; ClientId: string } = {
 
 const UserPool = new CognitoUserPool(poolData)
 
-let cognitoUser: CognitoUser
+let cognitoUser: CognitoUser = null
 
 const completeNewPasswordChallenge = (newPassword: string): Promise<void | { error: ICognitoChangePasswordError }> => {
     return new Promise((resolve, _reject) => {
@@ -119,7 +120,7 @@ const login = ({ username, password }: ISignInValues): Promise<ILoginResult | { 
         cognitoUser.authenticateUser(authDetails, {
             onSuccess: (_user, userConfirmationNecessary) => {
                 if (userConfirmationNecessary) {
-					// TODO
+                    // TODO
                 }
                 resolve(result)
             },
@@ -180,17 +181,6 @@ const sendVerificationCode = (email?: string): Promise<void | { error: ICognitoS
         })
     })
 }
-// {
-// 	onSuccess: (data: CodeDeliveryDetails) => {
-// 		resolve(data)
-// 	},
-
-// 	onFailure: (err) => {
-// 		resolve({
-// 			error: { name: err.name as ICognitoSendVerificationCodeError['name'], message: err.message },
-// 		})
-// 	},
-// }
 
 const signup = ({
     password,
@@ -276,6 +266,67 @@ const getUserData = async (user: CognitoUser): Promise<UserDataInterface | null>
     })
 }
 
+const updateUserAttributes = async (
+    attributes: IUserAttributes
+): Promise<void | { error: ICognitoVerifySignUpError }> => {
+    const userAttributes = Object.entries(attributes).map(([attribute, value]) => {
+        return new CognitoUserAttribute({
+            Name: attribute,
+            Value: value,
+        })
+    })
+    return new Promise((resolve, _reject) => {
+        cognitoUser.updateAttributes(userAttributes, (err, data) => {
+            if (err) {
+                resolve({
+                    error: { name: err.name as ICognitoVerifySignUpError['name'], message: err.message },
+                })
+            } else if (data) {
+                resolve()
+            }
+        })
+    })
+}
+
+const verifyUserAttribute = async (
+    attributeName: string,
+    code: string
+): Promise<void | { error: ICognitoVerifySignUpError }> => {
+    return new Promise((resolve, _reject) => {
+        cognitoUser.verifyAttribute(attributeName, code, {
+            onSuccess: () => {
+                resolve()
+            },
+
+            onFailure: (err) => {
+                resolve({ error: { name: err.name as ICognitoVerifySignUpError['name'], message: err.message } })
+            },
+        })
+    })
+}
+
+const sendUserAttributeVerification = async (
+    attributeName: string
+): Promise<void | { error: ICognitoSendVerificationCodeError }> => {
+    return new Promise((resolve, _reject) => {
+        cognitoUser.getAttributeVerificationCode(attributeName, {
+            onSuccess: () => {
+                resolve()
+            },
+
+            onFailure: (err) => {
+                resolve({
+                    error: { name: err.name as ICognitoSendVerificationCodeError['name'], message: err.message },
+                })
+            },
+        })
+    })
+}
+
+const checkAuthenticationStatus = (): boolean => {
+    return cognitoUser !== null
+}
+
 const getUser = async (): Promise<UserDataInterface | null> => {
     const user = UserPool.getCurrentUser()
     if (user) {
@@ -313,4 +364,8 @@ export {
     forgotPassord,
     sendVerificationCode,
     verifyUser,
+    updateUserAttributes,
+    checkAuthenticationStatus,
+    verifyUserAttribute,
+    sendUserAttributeVerification,
 }

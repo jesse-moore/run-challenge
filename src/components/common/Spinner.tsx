@@ -6,7 +6,7 @@ const SpinnerWrapper = ({ children }: { children: ReactNode }) => {
 
     return (
         isActive && (
-            <div className="absolute top-0 h-screen w-full min-h-full bg-opacity-50 bg-black">
+            <div className="absolute top-0 h-screen w-full min-h-full bg-opacity-50 bg-black z-50">
                 <div className="fixed h-full w-full top-1/3">
                     <div className="mx-auto w-fit">{children}</div>
                 </div>

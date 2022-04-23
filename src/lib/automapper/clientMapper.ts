@@ -3,6 +3,7 @@ import { classes } from '@automapper/classes'
 import { challengeProfile } from './ChallengeProfile'
 import { activityProfile } from './ActivityProfile'
 import { signUpProfile } from './SignUpProfile'
+import { userAttributesProfile } from './UserAttributesProfile'
 
 export const clientMapper = createMapper({
     name: 'automapper',
@@ -17,3 +18,4 @@ export const clientMapper = createMapper({
 clientMapper.addProfile(challengeProfile)
 clientMapper.addProfile(activityProfile)
 clientMapper.addProfile(signUpProfile)
+clientMapper.addProfile(userAttributesProfile)

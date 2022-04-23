@@ -7,7 +7,7 @@ interface IProfileLayout {
 
 export default function ProfileLayout({ children }: IProfileLayout) {
     return (
-        <div>
+        <div className="mx-auto w-full">
             <TabsLayout
                 tabs={[
                     { title: 'Overview', path: '/profile/overview' },

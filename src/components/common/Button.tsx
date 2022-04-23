@@ -28,7 +28,7 @@ export const Button = ({
         'border-2 disabled:text-gray-200 disabled:bg-slate-500 disabled:pointer-events-none disabled:border-none hover:shadow active:shadow-none active:translate-y-0.5'
     const primarySolidStyle = `${solidStyle} bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring focus:ring-sky-400`
     const primaryOutlineStyle = `${outlineStyle} border-sky-600 text-sky-600 hover:bg-sky-100 hover:border-sky-700 focus:outline-none focus:ring focus:ring-sky-400`
-    const warningSolidStyle = `${solidStyle} bg-yellow-700 hover:bg-yellow-800 focus:outline-none focus:ring focus:ring-yellow-400`
+    const warningSolidStyle = `${solidStyle} bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring focus:ring-yellow-400`
     const warningOutlineStyle = `${outlineStyle} border-yellow-600 text-yellow-600 hover:bg-yellow-100 focus:outline-none focus:ring focus:ring-yellow-400`
     const dangerSolidStyle = `${solidStyle} bg-red-700 hover:bg-red-800 focus:outline-none focus:ring focus:ring-red-400`
     const dangerOutlineStyle = `${outlineStyle} border-red-600 text-red-600 hover:bg-red-100 focus:outline-none focus:ring focus:ring-red-400`

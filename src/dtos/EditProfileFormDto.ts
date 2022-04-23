@@ -1,25 +1,27 @@
 import { AutoMap } from '@automapper/classes'
 
-export class SignUpFormDto {
-    @AutoMap()
-    email: string
-    @AutoMap()
-    password: string
-    confirmPassword: string
+export class EditProfileFormDto {
     @AutoMap()
     gender: string
     @AutoMap()
     name: string
-    @AutoMap({ typeFn: () => YearMonthDayFormDto })
+    @AutoMap()
     birthdate: YearMonthDayFormDto
 
     constructor(user?: UserDataInterface) {
-        this.email = user ? user.email : ''
-        this.password = 'aaaaaaa'
-        this.confirmPassword = ''
         this.gender = user ? user.gender : ''
         this.name = user ? user.name : ''
         this.birthdate = user ? new YearMonthDayFormDto(user.birthdate) : new YearMonthDayFormDto()
+    }
+
+    equals = (values: EditProfileFormDto) => {
+        return (
+            values.name === this.name &&
+            values.gender === this.gender &&
+            Number(values.birthdate.day) === this.birthdate.day &&
+            Number(values.birthdate.month) === this.birthdate.month &&
+            Number(values.birthdate.year) === this.birthdate.year
+        )
     }
 }
 
